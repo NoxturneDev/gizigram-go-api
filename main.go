@@ -11,7 +11,7 @@ func main() {
 
 	database.ConnectDatabase()
 
-	database.DB.AutoMigrate(&model.Users{}, &model.Parent{}, &model.Children{})
+	database.DB.AutoMigrate(&model.Users{}, &model.Parent{}, &model.Children{}, &model.GrowthRecord{})
 
 	NewRouter(app)
 
