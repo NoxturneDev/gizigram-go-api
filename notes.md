@@ -18,5 +18,39 @@ model/ - contains all the models struct
 services/
   ../user.go - contains all the business logic 
 
+-- gender
+1 -> laki-laki
+0 -> perempuan
 
+localhost:3002/api/users/
+--
+{
+"username": "bapak",
+"password": "anak"
+}
+
+
+
+localhost:3002/api/parent/create
+--
+{
+"name" : "ibu 2",
+"user_id": 1
+}
+
+localhost:3002/api/children/create
+--
+{
+"name": "jerry",
+"age" : 20,
+"height": "178 cm",
+"parent_id": 2
+}
+
+localhost:3002/api/login
+--
+{
+"username" : "ibu",
+"password" : "anak"
+}
 
