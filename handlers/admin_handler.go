@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"github.com/berkatps/database"
 	"github.com/berkatps/model"
 	"github.com/berkatps/services"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 func CreateParent(c *fiber.Ctx) error {
@@ -38,14 +40,20 @@ func ShowParrentByID(c *fiber.Ctx) error {
 	return c.JSON(&fiber.Map{"status": "success", "message": "parent", "data": parent})
 }
 
-func CreateChildren(c *fiber.Ctx) error {
-	children := new(model.Children)
-	if err := c.BodyParser(children); err != nil {
-		return c.Status(500).JSON(&fiber.Map{"status": "error", "message": "Review your input", "data": err})
+func CreateChildrenHandler(c *fiber.Ctx) error {
+	var children model.Children
+	if err := c.BodyParser(&children); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{"status": "error", "message": "Review your input", "data": err.Error()})
 	}
-	if services.CreateChildren(children) != nil {
-		return c.Status(500).JSON(&fiber.Map{"status": "error", "message": "Couldn't create children", "data": nil})
+
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		return services.CreateChildren(tx, &children)
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{"status": "error", "message": "Couldn't create children", "data": err.Error()})
 	}
+
 	return c.JSON(&fiber.Map{"status": "success", "message": "Created children", "data": children})
 }
 

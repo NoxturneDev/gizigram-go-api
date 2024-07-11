@@ -3,6 +3,8 @@ package services
 import (
 	"github.com/berkatps/database"
 	"github.com/berkatps/model"
+	"gorm.io/gorm"
+	"time"
 )
 
 func CreateParent(parent *model.Parent) error {
@@ -25,8 +27,29 @@ func ShowParrentByID(id int) (*model.Parent, error) {
 	return &parent, nil
 }
 
-func CreateChildren(children *model.Children) error {
-	return database.DB.Create(&children).Error
+func CreateChildren(tx *gorm.DB, children *model.Children) error {
+	if err := tx.Create(children).Error; err != nil {
+		return err
+	}
+
+	growth := model.GrowthRecord{
+		RecordCount:    1,
+		ChildrenID:     children.ID,
+		GrowthResultID: 0,
+		WeightAfter:    children.Weight,
+		WeightBefore:   children.Weight,
+		HeightAfter:    children.Height,
+		HeightBefore:   children.Height,
+		AddedHeight:    0,
+		AddedWeight:    0,
+		CreatedAt:      time.Now(),
+	}
+
+	if err := tx.Create(&growth).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GetChildrenMatchByParentID(id int) ([]model.Children, error) {
