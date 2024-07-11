@@ -26,5 +26,8 @@ func NewRouter(app *fiber.App) {
 	api.Get("/children/:id", handlers.ShowChildrenByID)
 	api.Delete("/children/:id", handlers.DeleteChidren)
 	api.Delete("/parent/:id", handlers.DeleteParent)
-	
+
+	api.Post("/login", handlers.LoginUser)
+	api.Post("/logout", handlers.LogoutUser)
+
 }

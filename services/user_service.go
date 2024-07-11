@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"github.com/berkatps/database"
 	"github.com/berkatps/model"
 )
@@ -19,4 +20,12 @@ func GetUser() ([]model.Users, error) {
 
 func DeleteUser(id int) error {
 	return database.DB.Delete(&model.Users{}, id).Error
+}
+
+func LoginUser(username string, password string) (*model.Users, error) {
+	var user *model.Users
+	if err := database.DB.Where("username = ? AND password = ?", username, password).First(&user).Error; err != nil {
+		return nil, fmt.Errorf("invalid username or password")
+	}
+	return user, nil
 }

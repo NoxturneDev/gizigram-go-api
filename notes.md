@@ -43,4 +43,11 @@ localhost:3002/api/children/create
 "height": "178 cm",
 "parent_id": 2
 }
- 
+
+localhost:3002/api/login
+--
+{
+"username" : "ibu",
+"password" : "anak"
+}
+
