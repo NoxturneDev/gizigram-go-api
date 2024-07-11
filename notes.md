@@ -85,3 +85,8 @@ localhost:3002/api/login
 "password" : "anak"
 }
 
+
+prompt
+-- 
+Rancang aplikasi yang ramah pengguna untuk menganalisis data anak-anak dalam jangka waktu tertentu guna mengidentifikasi potensi stunting berdasarkan standar WHO, dengan fitur seperti entri data, analisis data, pelaporan, tindakan pencegahan, manajemen pengguna, aksesibilitas mobile, dan dukungan serta umpan balik, serta integrasikan data WHO tentang nutrisi, perawatan kesehatan, kebersihan, sanitasi, pendidikan, dan kesadaran, untuk memberikan rekomendasi pencegahan stunting dan isyarat visual ketika metrik pertumbuhan anak di bawah ambang batas WHO
+

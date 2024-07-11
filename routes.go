@@ -31,4 +31,6 @@ func NewRouter(app *fiber.App) {
 	api.Post("/logout", handlers.LogoutUser)
 
 	api.Post("/growth/create", handlers.CreateGrowthRecordHandler)
+
+	app.Get("/ws", websocket.New(handlers.AiChatHandler))
 }
