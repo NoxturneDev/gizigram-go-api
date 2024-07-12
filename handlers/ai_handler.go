@@ -46,7 +46,7 @@ func AiScanner(c *fiber.Ctx) error {
 	// Create a prompt using text and the URI reference for the uploaded file.
 
 	// Generate content using the prompt.
-	promptDesignBase := "Hi, I want you to act like my private nutritionist. But you need to send the response in JSON (no need to add json as a prefix for the answer) with object of : advice, nutritions fact (object), children data (name, age). Give me some healthy advice according to food and nutrients. First of all, my kid is at [age] and his name is [name]. I wanted to give him this food at the picture. and this is the further description about it. [prompt]. please also write some advice is this food is recommended based on the nutrition. Im concerned about stunting issue, so I want my children to be as healthy as possible. and please translate in Bahasa Indonesia"
+	promptDesignBase := "Hai, saya ingin kamu bertindak seperti ahli gizi pribadi saya. Tapi kamu perlu mengirim tanggapannya dalam format JSON (tidak perlu menambahkan JSON sebagai awalan untuk jawabannya) dengan objek: saran (advice), fakta nutrisi (nutrition fact sebagai objek), data anak (nama, usia). Berikan saya beberapa saran sehat berdasarkan makanan dan nutrisi. Pertama-tama, anak saya berusia [age] dan namanya [name]. Saya ingin memberinya makanan ini pada gambar. dan ini adalah deskripsi lebih lanjut tentangnya. [prompt]. Tolong juga tulis beberapa saran apakah makanan ini direkomendasikan berdasarkan nutrisinya. Saya khawatir tentang masalah stunting, jadi saya ingin anak saya se-sehat mungkin."
 
 	promptDesign1 := strings.Replace(promptDesignBase, "[age]", "5", -1)
 	promptDesign2 := strings.Replace(promptDesign1, "[name]", "galih adhi kusuma", -1)
