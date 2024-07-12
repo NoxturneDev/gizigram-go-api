@@ -8,6 +8,7 @@ import (
 	"google.golang.org/api/option"
 	"log"
 	"os"
+	"strings"
 )
 
 func AiScanner(c *fiber.Ctx) error {
@@ -43,12 +44,19 @@ func AiScanner(c *fiber.Ctx) error {
 	model := client.GenerativeModel("gemini-1.5-pro")
 
 	// Create a prompt using text and the URI reference for the uploaded file.
-	prompt := []genai.Part{
-		genai.FileData{URI: img1.URI},
-		genai.Text("Describe this food nutrient facts."),
-	}
 
 	// Generate content using the prompt.
+	promptDesignBase := "Hi, I want you to act like my private nutritionist. But you need to send the response in JSON (no need to add json as a prefix for the answer) with object of : advice, nutritions fact (object), children data (name, age). Give me some healthy advice according to food and nutrients. First of all, my kid is at [age] and his name is [name]. I wanted to give him this food at the picture. and this is the further description about it. [prompt]. please also write some advice is this food is recommended based on the nutrition. Im concerned about stunting issue, so I want my children to be as healthy as possible. and please translate in Bahasa Indonesia"
+
+	promptDesign1 := strings.Replace(promptDesignBase, "[age]", "5", -1)
+	promptDesign2 := strings.Replace(promptDesign1, "[name]", "galih adhi kusuma", -1)
+	promptDesign3 := strings.Replace(promptDesign2, "[prompt]", "describe the food", -1)
+
+	prompt := []genai.Part{
+		genai.FileData{URI: img1.URI},
+		genai.Text(promptDesign3),
+	}
+
 	resp, err := model.GenerateContent(ctx, prompt...)
 	if err != nil {
 		log.Fatal(err)
@@ -60,5 +68,6 @@ func AiScanner(c *fiber.Ctx) error {
 			fmt.Println(*c.Content)
 		}
 	}
+
 	return c.JSON(&fiber.Map{"status": "success", "message": "AI Scanner", "data": resp.Candidates})
 }
