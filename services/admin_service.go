@@ -75,20 +75,23 @@ func ShowParentOptions() (interface{}, error) {
 }
 
 func CreateChildren(tx *gorm.DB, children *model.Children) error {
-	if err := tx.Create(children).Error; err != nil {
+	children.BirthDate = time.Now()
+	if err := tx.Create(&children).Error; err != nil {
 		return err
 	}
 
 	growth := model.GrowthRecord{
-		RecordCount:  1,
-		ChildrenID:   int(children.ID),
-		WeightAfter:  children.Weight,
-		WeightBefore: children.Weight,
-		HeightAfter:  children.Height,
-		HeightBefore: children.Height,
-		AddedHeight:  0,
-		AddedWeight:  0,
-		CreatedAt:    time.Now(),
+		RecordCount:   1,
+		ChildrenID:    int(children.ID),
+		WeightAfter:   children.Weight,
+		WeightBefore:  children.Weight,
+		HeightAfter:   children.Height,
+		HeightBefore:  children.Height,
+		AddedHeight:   0,
+		AddedWeight:   0,
+		CreatedAt:     time.Now(),
+		LastCheckDate: time.Now(),
+		RecordDate:    time.Now(),
 	}
 
 	if err := tx.Create(&growth).Error; err != nil {

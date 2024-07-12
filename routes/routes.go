@@ -38,4 +38,5 @@ func NewRouter(app *fiber.App) {
 	api.Get("/growth/:id", handlers.ShowGrowthRecordByChildrenIDHandler)
 
 	api.Post("/ai/scanner", handlers.AiScanner)
+	api.Post("/ai/recipe", handlers.AiRecipe)
 }

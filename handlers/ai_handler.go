@@ -71,3 +71,40 @@ func AiScanner(c *fiber.Ctx) error {
 
 	return c.JSON(&fiber.Map{"status": "success", "message": "AI Scanner", "data": resp.Candidates})
 }
+
+type RecipePayload struct {
+	ParentID    int    `json:"parent_id"`
+	Description string `json:"description"`
+}
+
+func AiRecipe(c *fiber.Ctx) error {
+	var payload RecipePayload
+	if err := c.BodyParser(&payload); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{"status": "error", "message": "Failed to parse body", "data": err.Error()})
+	}
+
+	ctx := context.Background()
+	// Access your API key as an environment variable
+	client, err := genai.NewClient(ctx, option.WithAPIKey("AIzaSyANaDL7jL7ZhbbAzz05JEBAibYvyzVuK7c"))
+	if err != nil {
+		log.Fatal(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{"status": "error", "message": "Failed to create AI client", "data": err.Error()})
+	}
+
+	defer client.Close()
+
+	prompt := "Kamu adalah seorang ahli gizi yang akan membantuku dalam membuat resep sehat untuk anak ku. saat ini anak ku berusia sekitar 1-10 tahun dan aku " +
+		"ingin memberikan makanan-makanan sehat yang cukup bergizi dan dapat membantu tumbuh kembangnya. Berikan aku rekomendasi-rekomendasi resep dengan deksripsi berikut ya: [descriptiom]. langsung berikan saja " +
+		"rekomendasinya yaa, beserta bahan-bahan dan juga cara memasaknya. maksmimal berikan aku 3 resep. Terima kasih."
+
+	promptFinal := strings.Replace(prompt, "[description]", payload.Description, -1)
+
+	model := client.GenerativeModel("gemini-1.5-flash")
+	resp, err := model.GenerateContent(ctx, genai.Text(promptFinal))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return c.JSON(&fiber.Map{"status": "success", "message": "AI Scanner", "data": resp.Candidates})
+	return nil
+}
