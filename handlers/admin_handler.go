@@ -9,9 +9,19 @@ import (
 )
 
 type ParentPayload struct {
-	Name        string `json:"name"`
+	*model.Parent
 	PhoneNumber string `json:"phone_number"`
 }
+
+//type Parent struct {
+//	*gorm.Model
+//	Name      string     `json:"name"`
+//	UserID    int        `json:"user_id"`
+//	Height    int        `json:"height"`
+//	Address   string     `json:"address"`
+//	Gender    int        `json:"gender"`
+//	CreatedAt time.Time  `json:"created_at"`
+//}
 
 func CreateParent(c *fiber.Ctx) error {
 	payload := new(ParentPayload)
@@ -27,6 +37,9 @@ func CreateParent(c *fiber.Ctx) error {
 
 	var parent model.Parent
 	parent.Name = payload.Name
+	parent.Height = payload.Height
+	parent.Address = payload.Address
+
 	if services.CreateParent(&parent, payload.PhoneNumber) != nil {
 		return c.Status(500).JSON(&fiber.Map{"status": "error", "message": "Couldn't create parent", "data": nil})
 	}
@@ -53,6 +66,14 @@ func ShowParrentByID(c *fiber.Ctx) error {
 		return c.Status(500).JSON(&fiber.Map{"status": "error", "message": "Couldn't get parent", "data": err})
 	}
 	return c.JSON(&fiber.Map{"status": "success", "message": "parent", "data": parent})
+}
+
+func ShowParentOptions(c *fiber.Ctx) error {
+	options, err := services.ShowParentOptions()
+	if err != nil {
+		return c.Status(500).JSON(&fiber.Map{"status": "error", "message": "Couldn't get parents", "data": err})
+	}
+	return c.JSON(&fiber.Map{"status": "success", "message": "All parents", "data": options})
 }
 
 func CreateChildrenHandler(c *fiber.Ctx) error {

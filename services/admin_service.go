@@ -37,7 +37,7 @@ func CreateParent(parent *model.Parent, phoneNumber string) error {
 
 func ShowAllParrent() ([]model.Parent, error) {
 	var parents []model.Parent
-	if err := database.DB.Find(&parents).Error; err != nil {
+	if err := database.DB.Preload("Children").Find(&parents).Error; err != nil {
 		return nil, err
 	}
 	return parents, nil
@@ -51,22 +51,44 @@ func ShowParrentByID(id int) (*model.Parent, error) {
 	return &parent, nil
 }
 
+func ShowParentOptions() (interface{}, error) {
+	type Options struct {
+		Value int    `json:"value"`
+		Label string `json:"label"`
+	}
+
+	var parents []model.Parent
+	var options []Options
+
+	if err := database.DB.Find(&parents).Error; err != nil {
+		return nil, err
+	}
+
+	for _, parent := range parents {
+		options = append(options, Options{
+			Value: int(parent.ID),
+			Label: parent.Name,
+		})
+	}
+
+	return options, nil
+}
+
 func CreateChildren(tx *gorm.DB, children *model.Children) error {
 	if err := tx.Create(children).Error; err != nil {
 		return err
 	}
 
 	growth := model.GrowthRecord{
-		RecordCount:    1,
-		ChildrenID:     children.ID,
-		GrowthResultID: 0,
-		WeightAfter:    children.Weight,
-		WeightBefore:   children.Weight,
-		HeightAfter:    children.Height,
-		HeightBefore:   children.Height,
-		AddedHeight:    0,
-		AddedWeight:    0,
-		CreatedAt:      time.Now(),
+		RecordCount:  1,
+		ChildrenID:   int(children.ID),
+		WeightAfter:  children.Weight,
+		WeightBefore: children.Weight,
+		HeightAfter:  children.Height,
+		HeightBefore: children.Height,
+		AddedHeight:  0,
+		AddedWeight:  0,
+		CreatedAt:    time.Now(),
 	}
 
 	if err := tx.Create(&growth).Error; err != nil {
@@ -86,7 +108,7 @@ func GetChildrenMatchByParentID(id int) ([]model.Children, error) {
 
 func ShowAllChildren() ([]model.Children, error) {
 	var children []model.Children
-	if err := database.DB.Find(&children).Error; err != nil {
+	if err := database.DB.Joins("Parent").Find(&children).Error; err != nil {
 		return nil, err
 	}
 	return children, nil
