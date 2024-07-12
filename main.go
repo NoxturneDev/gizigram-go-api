@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gizigram-go-api/database"
 	"gizigram-go-api/model"
+	"log"
 )
 
 func main() {
@@ -20,5 +21,6 @@ func main() {
 
 	NewRouter(app)
 
-	app.Listen(":3002")
+	log.Println("Server is running on port 8080")
+	app.Listen(":8080")
 }
