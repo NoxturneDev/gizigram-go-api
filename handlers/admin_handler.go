@@ -1,22 +1,37 @@
 package handlers
 
 import (
-	"github.com/berkatps/database"
-	"github.com/berkatps/model"
-	"github.com/berkatps/services"
 	"github.com/gofiber/fiber/v2"
+	"gizigram-go-api/database"
+	"gizigram-go-api/model"
+	"gizigram-go-api/services"
 	"gorm.io/gorm"
 )
 
+type ParentPayload struct {
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phone_number"`
+}
+
 func CreateParent(c *fiber.Ctx) error {
-	parrent := new(model.Parent)
-	if err := c.BodyParser(parrent); err != nil {
+	payload := new(ParentPayload)
+
+	if err := c.BodyParser(payload); err != nil {
 		return c.Status(500).JSON(&fiber.Map{"status": "error", "message": "Review your input", "data": err})
 	}
-	if services.CreateParent(parrent) != nil {
+
+	user := services.GetUserByPhoneNumber(payload.PhoneNumber)
+	if user != nil {
+		return c.Status(500).JSON(&fiber.Map{"status": "error", "message": "User already exists", "data": user})
+	}
+
+	var parent model.Parent
+	parent.Name = payload.Name
+	if services.CreateParent(&parent, payload.PhoneNumber) != nil {
 		return c.Status(500).JSON(&fiber.Map{"status": "error", "message": "Couldn't create parent", "data": nil})
 	}
-	return c.JSON(&fiber.Map{"status": "success", "message": "Created parent", "data": parrent})
+
+	return c.JSON(&fiber.Map{"status": "success", "message": "Created parent", "data": payload})
 }
 
 func ShowAllParent(c *fiber.Ctx) error {

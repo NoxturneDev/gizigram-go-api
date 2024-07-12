@@ -1,14 +1,38 @@
 package services
 
 import (
-	"github.com/berkatps/database"
-	"github.com/berkatps/model"
+	"gizigram-go-api/database"
+	"gizigram-go-api/model"
 	"gorm.io/gorm"
 	"time"
 )
 
-func CreateParent(parent *model.Parent) error {
-	return database.DB.Create(&parent).Error
+func CreateParent(parent *model.Parent, phoneNumber string) error {
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		user := model.Users{
+			Username: phoneNumber,
+			Password: phoneNumber,
+		}
+
+		err := tx.Create(&user).Error
+		if err != nil {
+			return err
+		}
+
+		parent.UserID = int(user.ID)
+		err = tx.Create(&parent).Error
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func ShowAllParrent() ([]model.Parent, error) {

@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/berkatps/database"
-	"github.com/berkatps/model"
-	"github.com/berkatps/services"
 	"github.com/gofiber/fiber/v2"
+	"gizigram-go-api/database"
+	"gizigram-go-api/model"
+	"gizigram-go-api/services"
 	"gorm.io/gorm"
 )
 

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/berkatps/handlers"
 	"github.com/gofiber/fiber/v2"
+	"gizigram-go-api/handlers"
 )
 
 func NewRouter(app *fiber.App) {

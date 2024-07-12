@@ -2,7 +2,7 @@ package services
 
 import (
 	"fmt"
-	"github.com/berkatps/model"
+	"gizigram-go-api/model"
 	"gorm.io/gorm"
 )
 

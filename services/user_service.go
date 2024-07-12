@@ -2,8 +2,8 @@ package services
 
 import (
 	"fmt"
-	"github.com/berkatps/database"
-	"github.com/berkatps/model"
+	"gizigram-go-api/database"
+	"gizigram-go-api/model"
 )
 
 func CreateUser(user *model.Users) error {
@@ -16,6 +16,16 @@ func GetUser() ([]model.Users, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func GetUserByPhoneNumber(phoneNumber string) *model.Users {
+	var user model.Users
+
+	if err := database.DB.Where("username = ?", phoneNumber).First(&user).Error; err != nil {
+		return nil
+	}
+
+	return &user
 }
 
 func DeleteUser(id int) error {
