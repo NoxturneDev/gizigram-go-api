@@ -33,5 +33,6 @@ func NewRouter(app *fiber.App) {
 
 	api.Post("/growth/create", handlers.CreateGrowthRecordHandler)
 
-	app.Get("/ws", websocket.New(handlers.AiChatHandler))
+	api.Post("/upload", handlers.UploadImage)
+	app.Get("/ws/chat", websocket.New(handlers.AiChatHandler))
 }

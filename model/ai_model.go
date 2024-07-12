@@ -25,4 +25,5 @@ type SocketResponse struct {
 
 type SocketPayload struct {
 	Prompt string
+	Image  string `json:"image,omitempty"` // Base64 encoded image data
 }
