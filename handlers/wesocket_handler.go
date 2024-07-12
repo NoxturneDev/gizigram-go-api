@@ -1,19 +1,17 @@
 package handlers
 
-package handlers
-
 import (
-"context"
-"errors"
-"fmt"
-"log"
-"os"
-"strings"
+	"context"
+	"fmt"
+	"google.golang.org/api/iterator"
+	"log"
+	"os"
 
-"github.com/gofiber/websocket/v2"
-"github.com/joho/godotenv"
-"google.golang.org/api/iterator"
-
+	"github.com/berkatps/model"
+	"github.com/berkatps/services"
+	"github.com/gofiber/websocket/v2"
+	"github.com/google/generative-ai-go/genai"
+	"github.com/joho/godotenv"
 )
 
 var connections = make([]*model.WebSocketConnection, 0)
@@ -21,7 +19,7 @@ var connections = make([]*model.WebSocketConnection, 0)
 func AiChatHandler(c *websocket.Conn) {
 	defer c.Close()
 
-	phoneNumber := c.Query("name")
+	phoneNumber := c.Query("phoneNumber")
 
 	currentConn := model.WebSocketConnection{Conn: c, PhoneNumber: phoneNumber}
 	connections = append(connections, &currentConn)
@@ -35,53 +33,51 @@ func handleChat(currentConn *model.WebSocketConnection, connections []*model.Web
 		log.Fatal("Error loading .env file")
 	}
 
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("ERROR: ", fmt.Sprintf("%v", r))
-		}
-	}()
-
 	ctx := context.Background()
-	geminiApiKey := os.Getenv("GEMINI_API_KEY")
-	secretKey := os.Getenv("SECRET_KEY")
+	geminiApiKey := os.Getenv("API_KEY")
 
-	fmt.Println("GEMINI_API_KEY:", geminiApiKey)
-	fmt.Println("SECRET_KEY:", secretKey)
-
-	model, err := services.InitAIService(ctx, geminiApiKey)
+	// Initialize AI service
+	aiModel, err := services.InitAIService(ctx, geminiApiKey)
 	if err != nil {
 		log.Println("ERROR", err)
+		sendStringMessage(currentConn, "Failed to initialize AI service")
 		return
 	}
 
-	cs := model.StartChat()
+	cs := aiModel.StartChat()
+
+	// Simulate connecting to Gemini
+	fmt.Println("Connecting to Gemini...")
+	sendStringMessage(currentConn, "Connecting to Gemini...")
+
+	// Connection successful
+	sendStringMessage(currentConn, "Successfully connected to Gemini")
 
 	for {
-		payload := model.SocketPayload{}
+		var payload model.SocketPayload
 		err := currentConn.ReadJSON(&payload)
 		if err != nil {
-			if strings.Contains(err.Error(), "websocket: close") {
-				sendStringMessage(currentConn, "LEAVE")
-				return
-			}
-
-			log.Println("ERROR", err.Error())
+			log.Println("ERROR reading JSON:", err.Error())
+			sendStringMessage(currentConn, "Invalid JSON format")
 			continue
 		}
+
+		log.Printf("Received JSON: %+v\n", payload)
 
 		iter := cs.SendMessageStream(ctx, genai.Text(payload.Prompt))
 		for {
 			resp, err := iter.Next()
-			if errors.Is(err, iterator.Done) {
-				fmt.Println(iter.MergedResponse().Candidates[0].Content.Parts[0])
-				break
-			}
 			if err != nil {
+				if err == iterator.Done {
+					log.Println("All items in iterator processed.")
+					sendStringMessage(currentConn, "All responses processed. Waiting for new input.")
+					break
+				}
 				log.Println("stream error:", err)
 				sendStringMessage(currentConn, "Failed to generate content")
+				break
 			}
 
-			log.Println("Sending message:", resp)
 			sendAiResult(currentConn, resp.Candidates[0].Content.Parts[0])
 		}
 	}

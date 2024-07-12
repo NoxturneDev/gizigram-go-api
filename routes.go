@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/berkatps/handlers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 )
 
 func NewRouter(app *fiber.App) {

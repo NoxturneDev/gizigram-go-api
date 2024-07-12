@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github.com/berkatps/database"
-	"github.com/berkatps/model"
+	_ "github.com/berkatps/database"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
-	"github.com/"
+	"log"
 )
 
 func main() {
@@ -15,10 +14,9 @@ func main() {
 	}
 
 	app := fiber.New()
-	app.Use(logger.New())
+	//app.Use(logger.New())
 
 	NewRouter(app)
 
 	log.Fatal(app.Listen(":3002"))
 }
-
